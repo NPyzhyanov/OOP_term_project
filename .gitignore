@@ -1,0 +1,6 @@
+build*/
+*.pro
+*.pro.user
+x64/
+.vs/
+_realisation_variants_/
