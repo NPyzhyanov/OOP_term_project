@@ -27,7 +27,7 @@ std::string* vehicle::get_land_vehicles_list()
     
     for (int i = static_cast<int>(vehicle::null_land_vehicle); i < static_cast<int>(vehicle::terminal_land_vehicle) - 1; i++)
     {
-        names_array[i] = vehicle::get_name(static_cast<vehicle::LandVehiclesList>(i+1), "land");
+        names_array[i] = vehicle::get_name(static_cast<vehicle::LandVehiclesList>(i+1));
     }
     
     names_array[vehicle::terminal_land_vehicle - 1] = vehicle::get_terminal_code_phrase();
@@ -41,7 +41,7 @@ std::string* vehicle::get_air_vehicles_list()
     
     for (int i = static_cast<int>(vehicle::null_air_vehicle); i < static_cast<int>(vehicle::terminal_air_vehicle) - 1; i++)
     {
-        names_array[i] = vehicle::get_name(static_cast<vehicle::AirVehiclesList>(i+1), "air");
+        names_array[i] = vehicle::get_name(static_cast<vehicle::AirVehiclesList>(i+1));
     }
     
     names_array[vehicle::terminal_air_vehicle - 1] = vehicle::get_terminal_code_phrase();
@@ -79,44 +79,44 @@ void vehicle::Vehicle::check_inputs(double distance)
 {
     if (distance < 0)
     {
-        throw std::exception();
+        throw std::logic_error("vehicle::Vehicle::check_inputs : (distance < 0)");
     }
     
     if (speed <= 0)
     {
-        throw std::exception();
+        throw std::logic_error("vehicle::Vehicle::check_inputs : (speed <= 0)");
     }
 }
 
-vehicle::Vehicle* vehicle::create_vehicle(std::string vehicle_name) // (!) СОЗДАТЬ ПОДФУНКЦИЮ, ВЫНЕСТИ В ОТДЕЛЬНУЮ ПАРУ ФАЙЛОВ .h + .cpp
+vehicle::Vehicle* vehicle::create_vehicle(std::string vehicle_name)
 {
     vehicle::Vehicle* p_vehicle;
     
-    if (vehicle_name == get_name(vehicle::camel, "land"))
+    if (vehicle_name == get_name(vehicle::camel))
     {
         p_vehicle = new vehicle::Camel();
     }
-    else if (vehicle_name == get_name(vehicle::high_speed_camel, "land"))
+    else if (vehicle_name == get_name(vehicle::high_speed_camel))
     {
          p_vehicle = new vehicle::High_Speed_Camel();
     }
-    else if (vehicle_name == get_name(vehicle::centaur, "land"))
+    else if (vehicle_name == get_name(vehicle::centaur))
     {
          p_vehicle = new vehicle::Centaur();
     }
-    else if (vehicle_name == get_name(vehicle::offroad_boots, "land"))
+    else if (vehicle_name == get_name(vehicle::offroad_boots))
     {
          p_vehicle = new vehicle::Offroad_Boots();
     }
-    else if (vehicle_name == get_name(vehicle::flying_carpet, "air"))
+    else if (vehicle_name == get_name(vehicle::flying_carpet))
     {
          p_vehicle = new vehicle::Flying_Carpet();
     }
-    else if (vehicle_name == get_name(vehicle::eagle, "air"))
+    else if (vehicle_name == get_name(vehicle::eagle))
     {
          p_vehicle = new vehicle::Eagle();
     }
-    else if (vehicle_name == get_name(vehicle::broom, "air"))
+    else if (vehicle_name == get_name(vehicle::broom))
     {
          p_vehicle = new vehicle::Broom();
     }
@@ -128,8 +128,7 @@ vehicle::Vehicle* vehicle::create_vehicle(std::string vehicle_name) // (!) СО�
     return p_vehicle;
 }
 
-void vehicle::delete_vehicle(vehicle::Vehicle* &p_vehicle)
+void vehicle::delete_vehicle(vehicle::Vehicle* p_vehicle)
 {
     delete p_vehicle;
-    p_vehicle = nullptr;
 }

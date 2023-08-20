@@ -10,7 +10,7 @@
 vehicle::Centaur::Centaur()
 {
     id = vehicle::centaur;
-    vehicle_name = vehicle::get_name(id, "land");
+    vehicle_name = vehicle::get_name(id);
     speed = 15;
     performance_time = 8;
     rest_time[0] = 2;

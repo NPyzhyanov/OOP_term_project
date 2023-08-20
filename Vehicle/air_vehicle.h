@@ -1,12 +1,6 @@
 #ifndef AIR_VEHICLE_H
 #define AIR_VEHICLE_H
 
-//#if defined(VEHICLE_LIBRARY)
-//#define VEHICLE_API __declspec(dllexport)
-//#else
-//#define VEHICLE_API __declspec(dllimport)
-//#endif
-
 namespace vehicle
 {
     class Air_Vehicle : public vehicle::Vehicle

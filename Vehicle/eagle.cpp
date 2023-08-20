@@ -10,7 +10,7 @@
 vehicle::Eagle::Eagle()
 {
     id = vehicle::eagle;
-    vehicle_name = vehicle::get_name(id, "air");
+    vehicle_name = vehicle::get_name(id);
     speed = 8;
 }
 

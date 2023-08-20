@@ -10,7 +10,7 @@
 vehicle::Offroad_Boots::Offroad_Boots()
 {
     id = vehicle::offroad_boots;
-    vehicle_name = vehicle::get_name(id, "land");
+    vehicle_name = vehicle::get_name(id);
     speed = 6;
     performance_time = 60;
     rest_time[0] = 10;

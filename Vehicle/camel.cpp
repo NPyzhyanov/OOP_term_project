@@ -10,7 +10,7 @@
 vehicle::Camel::Camel()
 {
     id = vehicle::camel;
-    vehicle_name = vehicle::get_name(id, "land");
+    vehicle_name = vehicle::get_name(id);
     speed = 10;
     performance_time = 30;
     rest_time[0] = 5;

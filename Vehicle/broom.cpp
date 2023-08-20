@@ -10,7 +10,7 @@
 vehicle::Broom::Broom()
 {
     id = vehicle::broom;
-    vehicle_name = vehicle::get_name(id, "air");
+    vehicle_name = vehicle::get_name(id);
     speed = 20;
 }
 

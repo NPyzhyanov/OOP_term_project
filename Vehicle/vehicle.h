@@ -40,7 +40,7 @@ namespace vehicle
     
     VEHICLE_API Vehicle* create_vehicle(std::string vehicle_name);
     
-    VEHICLE_API void delete_vehicle(vehicle::Vehicle* &p_vehicle);
+    VEHICLE_API void delete_vehicle(vehicle::Vehicle* p_vehicle);
     
 }
 

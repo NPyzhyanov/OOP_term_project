@@ -1,110 +1,231 @@
 #include <iostream>
+#include <stdexcept>
 #include <string>
+#include <cstdlib>
 
 #include "vehicle.h"
+#include "race.h"
+#include "garage.h"
+#include "checkin.h"
 
 int main()
 {
-    const double DISTANCE = 8500;
+    bool repeat_race = true;
     
-    std::string code_phrase = vehicle::get_terminal_code_phrase();
-    
-    std::cout << "Land vehicles: " << std:: endl;
-    
-    bool list_got = false;
-    int l_counter = 0;
-    std::string* p_l_list = vehicle::get_land_vehicles_list();
-    while (!list_got)
+    try
     {
-        std::string current_word = p_l_list[l_counter];
-        if (current_word == code_phrase || l_counter >= 100)
+        while (repeat_race)
         {
-            list_got = true;
+            checkin::Checkin* p_checkin = nullptr;
+            garage::Garage* p_garage = nullptr;
+            race::Race* p_race = nullptr;
+            
+            std::string saved_information = "";
+            const std::string wrong_input_message = "Wrong input! Please try again.\n";
+            
+            checkin::RacingType racing_type;
+            bool racing_type_choosing_finished = true;
+            do
+            {
+                std::cout << (racing_type_choosing_finished ? "Welcome to the racing simulator!\n" : wrong_input_message);
+                std::cout << "Enter the type of racing (1-3):\n";
+                std::cout << "\t1. Racing for land vehicles\n";
+                std::cout << "\t2. Racing for air vehicles\n";
+                std::cout << "\t3. Racing for both land and air vehicles\n";
+                
+                std::string user_racing_type;
+                std::cin >> user_racing_type;
+                
+                if (user_racing_type == "1")
+                {
+                    racing_type = checkin::RacingType::land;
+                    saved_information += "Racing for land vehicles.";
+                    racing_type_choosing_finished = true;
+                }
+                else if (user_racing_type == "2")
+                {
+                    racing_type = checkin::RacingType::air;
+                    saved_information += "Racing for air vehicles.";
+                    racing_type_choosing_finished = true;
+                }
+                else if (user_racing_type == "3")
+                {
+                    racing_type = checkin::RacingType::combined;
+                    saved_information += "Racing for land and air vehicles.";
+                    racing_type_choosing_finished = true;
+                }
+                else
+                {
+                    racing_type_choosing_finished = false;
+                }
+                std::system("cls");
+            }
+            while(!racing_type_choosing_finished);
+            
+            p_checkin = checkin::start_checkin(racing_type);
+            
+            double distance = 0.0;
+            bool distance_entered = true;
+            do
+            {
+                std::cout << (distance_entered ? (saved_information + "\n") : wrong_input_message);
+                std::cout << "Enter distance (must be positive): ";
+                std::string user_distance;
+                std::cin >> user_distance;
+                distance = stod(user_distance);
+                if (distance <= 0.0)
+                {
+                    distance_entered = false;
+                }
+                else
+                {
+                    saved_information += " Distance: ";
+                    saved_information += std::to_string(static_cast<int>(distance));
+                    saved_information += "\n";
+                    distance_entered = true;
+                }
+                std::system("cls");
+            }
+            while(!distance_entered);
+            
+            p_race = race::create_race(distance);
+            p_garage = garage::create_garage();
+            
+            bool registration_completely_finished = false;
+            std::string outer_try_again_message = "";
+            while (!registration_completely_finished)
+            {
+                int registered_vcls_amount = p_checkin->get_registered_vcls_amount();
+                bool starting_allowed = (registered_vcls_amount >= 2);
+                std::string registration_information = (registered_vcls_amount ? p_checkin->show_registered_vehicles() : "");
+                
+                std::cout << outer_try_again_message << saved_information << registration_information << std::endl;
+                outer_try_again_message = "";
+                if (!starting_allowed)
+                {
+                    std::cout << "Please, register at least two vehicles.\n";
+                }
+                std::cout << "Choose action:\n";
+                
+                int action_number = 0;
+                int registration_number = 0;
+                int starting_number = 0;
+                if (p_checkin->get_available_vcls_amount() > 0)
+                {
+                    action_number++;
+                    registration_number = action_number;
+                    std::cout << "\t" << std::to_string(registration_number) << ". Register vehicles\n";
+                }
+                if (starting_allowed)
+                {
+                    action_number++;
+                    starting_number = action_number;
+                    std::cout << "\t" << std::to_string(starting_number) << ". Start race\n";
+                }
+                
+                std::string user_action;
+                std::cin >> user_action;
+                int action = std::stoi(user_action);
+                
+                if (registration_number && action == registration_number)
+                {
+                    std::string try_again_message = "";
+                    bool current_registration_session_finished = false;
+                    while (!current_registration_session_finished)
+                    {
+                        std::system("cls");
+                        std::cout << try_again_message << saved_information << registration_information << std::endl;
+                        try_again_message = "";
+                        std::string available_vehicles_message = p_checkin->show_available_vehicles();
+                        std::cout << available_vehicles_message;
+                        std::cout << "\t0. Finish registration\n";
+                        
+                        std::string user_vehicle_choice;
+                        std::cin >> user_vehicle_choice;
+                        int vehicle_choice = stoi(user_vehicle_choice);
+                        
+                        if (vehicle_choice == 0)// || p_checkin->get_available_vcls_amount() == 0)
+                        {
+                            checkin::ReturnCode vehicles_preparation_result = p_checkin->run_vehicles_preparation(p_garage);
+                            if (vehicles_preparation_result == checkin::ReturnCode::try_again)
+                            {
+                                try_again_message = "Cannot finish registration. Not enough vehicles registered.\n";
+                            }
+                            else
+                            {
+                                current_registration_session_finished = true;
+                            }
+                        }
+                        else if (vehicle_choice > p_checkin->get_available_vcls_amount())
+                        {
+                            try_again_message = wrong_input_message;
+                        }
+                        else
+                        {
+                            checkin::ReturnCode registration_result = p_checkin->register_vehicle(vehicle_choice);
+                            if (registration_result == checkin::ReturnCode::ok)
+                            {
+                                registration_information = p_checkin->show_registered_vehicles();
+                                if (p_checkin->get_available_vcls_amount() == 0)
+                                {
+                                    //current_registration_session_finished = true;
+                                }
+                            }
+                            else if (registration_result == checkin::ReturnCode::action_impossible)
+                            {
+                                current_registration_session_finished = true;
+                                //registration_completely_finished = true;
+                            }
+                            else
+                            {
+                                try_again_message = wrong_input_message;
+                            }
+                        }
+                    }
+                }
+                else if (starting_number && action == starting_number)
+                {
+                    registration_completely_finished = true;
+                }
+                else
+                {
+                    outer_try_again_message = wrong_input_message;
+                }
+                
+                std::system("cls");
+            }
+            
+            p_garage->prepare_participants(p_race);
+            
+            bool final_action_got = false;
+            while (!final_action_got)
+            {
+                std::string race_results = p_race->show_results();
+                std::cout << saved_information << std::endl;
+                std::cout << race_results << std::endl;
+                
+                std::cout << "1. Run another race\n";
+                std::cout << "0. Quit\n";
+                
+                std::string user_final_action;
+                std::cin >> user_final_action;
+                if (user_final_action == "0")
+                {
+                    final_action_got = true;
+                    repeat_race = false;
+                }
+                else if (user_final_action == "1")
+                {
+                    final_action_got = true;
+                }
+                std::system("cls");
+            }
         }
-        else
-        {
-            std::cout << ++l_counter << ". " << current_word << std::endl;
-        }
     }
-
-    const int land_vcls_amount = l_counter;
-    
-    std::cout << "\nAir vehicles: " << std:: endl;
-    
-    list_got = false;
-    int a_counter = 0;
-    std::string* p_a_list = vehicle::get_air_vehicles_list();
-    while (!list_got)
+    catch(std::exception e)
     {
-        std::string current_word = p_a_list[a_counter];
-        if (current_word == code_phrase || a_counter >= 100)
-        {
-            list_got = true;
-        }
-        else
-        {
-            std::cout << ++a_counter << ". " << current_word << std::endl;
-        }
+        std::cout << e.what() << std::endl;
     }
-
-    const int air_vcls_amount = a_counter;
-    
-    std::cout << std::endl;
-    
-    vehicle::Vehicle** p_land_vehicles_array = new vehicle::Vehicle*[land_vcls_amount];
-    for (int i = 0; i < land_vcls_amount; i++)
-    {
-        p_land_vehicles_array[i] = vehicle::create_vehicle(p_l_list[i]);
-        std::cout << p_land_vehicles_array[i]->get_instance_name() << " created" << std::endl;
-    }
-    
-    vehicle::Vehicle** p_air_vehicles_array = new vehicle::Vehicle*[air_vcls_amount];
-    for (int i = 0; i < air_vcls_amount; i++)
-    {
-        p_air_vehicles_array[i] = vehicle::create_vehicle(p_a_list[i]);
-        std::cout << p_air_vehicles_array[i]->get_instance_name() << " created" << std::endl;
-    }
-    
-    double* land_vcls_results = new double[land_vcls_amount];
-    
-    for (int i = 0; i < land_vcls_amount; i++)
-    {
-        land_vcls_results[i] = p_land_vehicles_array[i]->ready_set_go(DISTANCE);
-    }
-    
-    double* air_vcls_results = new double[air_vcls_amount];
-    
-    for (int i = 0; i < air_vcls_amount; i++)
-    {
-        air_vcls_results[i] = p_air_vehicles_array[i]->ready_set_go(DISTANCE);
-    }
-    
-    std::cout << "\nRESULTS\n\n";
-    
-    for (int i = 0; i < land_vcls_amount; i++)
-    {
-        std::cout << p_land_vehicles_array[i]->get_instance_name() << "\t\t" << land_vcls_results[i] << std::endl;
-    }
-    for (int i = 0; i < air_vcls_amount; i++)
-    {
-        std::cout << p_air_vehicles_array[i]->get_instance_name() << "\t\t" << air_vcls_results[i] << std::endl;
-    }
-    
-    for (int i = 0; i < land_vcls_amount; i++)
-    {
-        vehicle::delete_vehicle(p_land_vehicles_array[i]);
-    }
-    for (int i = 0; i < air_vcls_amount; i++)
-    {
-        vehicle::delete_vehicle(p_air_vehicles_array[i]);
-    }
-    
-    delete[] land_vcls_results;
-    delete[] air_vcls_results;
-    delete[] p_land_vehicles_array;
-    delete[] p_air_vehicles_array;
-    vehicle::delete_list(p_l_list);
-    vehicle::delete_list(p_a_list);
     
     return 0;
 }

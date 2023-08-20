@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <string>
 
 #include "land_vehicles_list.h"
@@ -6,13 +5,8 @@
 #include "vehicle.h"
 #include "get_name.h"
 
-std::string vehicle::get_name(vehicle::LandVehiclesList list_element, std::string identifier)
+std::string vehicle::get_name(vehicle::LandVehiclesList list_element)
 {
-    if(identifier != "land")
-    {
-        throw std::exception();
-    }
-    
     std::string name = "";
     
     switch(list_element)
@@ -40,13 +34,8 @@ std::string vehicle::get_name(vehicle::LandVehiclesList list_element, std::strin
     return name;
 }
 
-std::string vehicle::get_name(vehicle::AirVehiclesList list_element, std::string identifier)
+std::string vehicle::get_name(vehicle::AirVehiclesList list_element)
 {
-    if(identifier != "air")
-    {
-        throw std::exception();
-    }
-    
     std::string name = "";
     
     switch(list_element)

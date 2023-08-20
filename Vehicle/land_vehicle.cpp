@@ -8,10 +8,6 @@ vehicle::Land_Vehicle::Land_Vehicle()
 {
 }
 
-//vehicle::Land_Vehicle::~Land_Vehicle()
-//{
-//}
-
 double vehicle::Land_Vehicle::ready_set_go(double distance)
 {
     check_inputs(distance);

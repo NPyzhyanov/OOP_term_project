@@ -10,7 +10,7 @@
 vehicle::Flying_Carpet::Flying_Carpet()
 {
     id = vehicle::flying_carpet;
-    vehicle_name = vehicle::get_name(id, "air");
+    vehicle_name = vehicle::get_name(id);
     speed = 10;
 }
 
