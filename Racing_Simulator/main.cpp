@@ -108,26 +108,26 @@ int main()
                 std::cout << "Choose action:\n";
                 
                 int action_number = 0;
-                int registration_number = 0;
-                int starting_number = 0;
+                int registration_action_number = 0;
+                int starting_action_number = 0;
                 if (p_checkin->get_available_vcls_amount() > 0)
                 {
                     action_number++;
-                    registration_number = action_number;
-                    std::cout << "\t" << std::to_string(registration_number) << ". Register vehicles\n";
+                    registration_action_number = action_number;
+                    std::cout << "\t" << std::to_string(registration_action_number) << ". Register vehicles\n";
                 }
                 if (starting_allowed)
                 {
                     action_number++;
-                    starting_number = action_number;
-                    std::cout << "\t" << std::to_string(starting_number) << ". Start race\n";
+                    starting_action_number = action_number;
+                    std::cout << "\t" << std::to_string(starting_action_number) << ". Start race\n";
                 }
                 
                 std::string user_action;
                 std::cin >> user_action;
                 int action = std::stoi(user_action);
                 
-                if (registration_number && action == registration_number)
+                if (registration_action_number && action == registration_action_number)
                 {
                     std::string try_again_message = "";
                     bool current_registration_session_finished = false;
@@ -138,13 +138,13 @@ int main()
                         try_again_message = "";
                         std::string available_vehicles_message = p_checkin->show_available_vehicles();
                         std::cout << available_vehicles_message;
-                        std::cout << "\t0. Finish registration\n";
+                        std::cout << "\t0. Save choice and finish registration\n";
                         
                         std::string user_vehicle_choice;
                         std::cin >> user_vehicle_choice;
                         int vehicle_choice = stoi(user_vehicle_choice);
                         
-                        if (vehicle_choice == 0)// || p_checkin->get_available_vcls_amount() == 0)
+                        if (vehicle_choice == 0)
                         {
                             checkin::ReturnCode vehicles_preparation_result = p_checkin->run_vehicles_preparation(p_garage);
                             if (vehicles_preparation_result == checkin::ReturnCode::try_again)
@@ -166,15 +166,10 @@ int main()
                             if (registration_result == checkin::ReturnCode::ok)
                             {
                                 registration_information = p_checkin->show_registered_vehicles();
-                                if (p_checkin->get_available_vcls_amount() == 0)
-                                {
-                                    //current_registration_session_finished = true;
-                                }
                             }
                             else if (registration_result == checkin::ReturnCode::action_impossible)
                             {
                                 current_registration_session_finished = true;
-                                //registration_completely_finished = true;
                             }
                             else
                             {
@@ -183,7 +178,7 @@ int main()
                         }
                     }
                 }
-                else if (starting_number && action == starting_number)
+                else if (starting_action_number && action == starting_action_number)
                 {
                     registration_completely_finished = true;
                 }
